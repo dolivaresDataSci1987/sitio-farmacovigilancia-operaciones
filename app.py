@@ -1,7 +1,7 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="SITIO Farmacovigilancia · Operaciones",
+    page_title="SITIO-SurveillanceHelper · Operaciones",
     page_icon="⚙️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -9,23 +9,22 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-.block-container {max-width: 1250px; padding-top: 1.5rem; padding-bottom: 3rem;}
-[data-testid="stSidebar"] {border-right: 1px solid #e9ecef;}
-.alerta {padding:16px 18px;border-radius:14px;border:1px solid #efb7b0;background:#fff4f2;margin:.5rem 0;}
-.espera {padding:16px 18px;border-radius:14px;border:1px solid #f0cf7a;background:#fff9e8;margin:.5rem 0;}
-.ok {padding:16px 18px;border-radius:14px;border:1px solid #b7dfc3;background:#f1fbf4;margin:.5rem 0;}
+.block-container {max-width: 1280px; padding-top: 1.4rem; padding-bottom: 3rem;}
+[data-testid="stSidebar"] {border-right: 1px solid #E5E7EB;}
+h1, h2, h3 {letter-spacing:-0.025em;}
+.card {padding:17px 19px;border:1px solid #E5E7EB;border-radius:14px;background:white;margin:8px 0 12px;}
+.red {padding:17px 19px;border:1px solid #E8B4AE;border-radius:14px;background:#FFF3F1;margin:8px 0;}
+.amber {padding:17px 19px;border:1px solid #F0D28A;border-radius:14px;background:#FFF9E9;margin:8px 0;}
+.green {padding:17px 19px;border:1px solid #BDE0C6;border-radius:14px;background:#F0FAF3;margin:8px 0;}
+.muted {color:#667085;}
 </style>
 """, unsafe_allow_html=True)
 
-# Protección simple para la DEMO.
-# En Streamlit Cloud, defina APP_PASSWORD en Settings > Secrets.
 clave = st.secrets.get("APP_PASSWORD", "")
 if clave:
-    if "autorizado" not in st.session_state:
-        st.session_state.autorizado = False
-    if not st.session_state.autorizado:
-        st.title("SITIO Farmacovigilancia")
-        st.subheader("Acceso interno")
+    if not st.session_state.get("autorizado", False):
+        st.title("SITIO-SurveillanceHelper")
+        st.subheader("Centro de Operaciones SITIO")
         entrada = st.text_input("Contraseña", type="password")
         if st.button("Entrar", type="primary"):
             if entrada == clave:
@@ -35,100 +34,160 @@ if clave:
                 st.error("Contraseña incorrecta.")
         st.stop()
 else:
-    st.warning("DEMO PÚBLICA: no hay contraseña configurada. No use datos reales.")
+    st.warning("DEMO PÚBLICA: no hay contraseña configurada. No utilice datos reales.")
+
+if "entrada_convertida" not in st.session_state:
+    st.session_state.entrada_convertida = False
 
 clientes = [
-    {"cliente":"Demo Pharma Paraguay S.A.","estado":"🔴 SITIO","bpfv":"En implementación","rfv":"Designado","accion":"Revisar PGR"},
-    {"cliente":"Laboratorio Guaraní Demo","estado":"🟠 CLIENTE","bpfv":"Vigente","rfv":"Designado","accion":"Esperar documento"},
-    {"cliente":"Importadora Salud Demo","estado":"🟢 OK","bpfv":"Vigente","rfv":"Designado","accion":"Ninguna"},
-]
-obligaciones = [
-    {"cliente":"Demo Pharma Paraguay S.A.","tipo":"BPFV","fecha":"14/11/2026","estado":"En curso","responsable":"SITIO"},
-    {"cliente":"Demo Pharma Paraguay S.A.","tipo":"PGR GLUCOX","fecha":"30/11/2026","estado":"En curso","responsable":"SITIO + RFV"},
-    {"cliente":"Laboratorio Guaraní Demo","tipo":"Revisión documental","fecha":"05/12/2026","estado":"Esperando cliente","responsable":"Cliente"},
-]
-casos = [
-    {"caso":"FV-DEMO-004","cliente":"Demo Pharma Paraguay S.A.","producto":"MED-X 100 mg","estado":"Revisión RFV","prioridad":"Alta"},
-]
-solicitudes = [
-    {"id":"SOL-0042","cliente":"Demo Pharma Paraguay S.A.","tipo":"DINAVISA me pidió algo","estado":"Nueva"},
-    {"id":"SOL-0041","cliente":"Laboratorio Guaraní Demo","tipo":"Soporte RFV","estado":"En revisión"},
+    {"Cliente":"Demo Pharma Paraguay S.A.","Estado":"🔴 SITIO","BPFV":"Implementación 82%","RFV":"Designado","Próxima acción":"Revisar PGR"},
+    {"Cliente":"Laboratorio Guaraní Demo","Estado":"🟠 TERCERO","BPFV":"Vigente","RFV":"Designado","Próxima acción":"Esperar documento"},
+    {"Cliente":"Importadora Salud Demo","Estado":"🟢 OK","BPFV":"Vigente","RFV":"Designado","Próxima acción":"Ninguna"},
 ]
 
-st.sidebar.markdown("## ⚙️ SITIO")
-st.sidebar.caption("Centro de Operaciones")
+st.sidebar.markdown("## SITIO-SurveillanceHelper")
+st.sidebar.caption("Centro de Operaciones SITIO")
 pagina = st.sidebar.radio(
-    "Ir a",
-    ["Centro de control", "Clientes", "BPFV", "Soporte RFV", "Casos", "Proyectos", "Vigilancia regulatoria", "Solicitudes"],
+    "Operaciones",
+    [
+        "Centro de control",
+        "Entradas de seguridad",
+        "Casos",
+        "BPFV y cumplimiento",
+        "Soporte al RFV",
+        "Informes y proyectos",
+        "Vigilancia regulatoria",
+        "Clientes",
+    ],
 )
 st.sidebar.divider()
 st.sidebar.caption("INTERNO SITIO · DEMO")
 
-st.title("SITIO Farmacovigilancia")
-st.caption("Centro interno de operaciones")
+st.title("SITIO-SurveillanceHelper")
+st.caption("SITIO BioMedical Solutions · Centro interno de operaciones")
 
 if pagina == "Centro de control":
-    a,b,c,d = st.columns(4)
-    a.metric("Clientes", "30")
-    b.metric("🔴 Requieren SITIO", "2")
-    c.metric("🟠 Esperando tercero", "3")
-    d.metric("🟢 Sin acción", "25")
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Clientes", "30")
+    c2.metric("🔴 Requieren SITIO", "2")
+    c3.metric("🟠 Esperando tercero", "3")
+    c4.metric("🟢 Sin acción", "25")
 
-    st.subheader("Requiere intervención de SITIO")
-    st.markdown('<div class="alerta"><b>Demo Pharma · PGR GLUCOX</b><br>Revisar borrador y preparar envío al RFV.</div>', unsafe_allow_html=True)
-    st.markdown('<div class="alerta"><b>Demo Pharma · BPFV</b><br>Completar expediente de presentación.</div>', unsafe_allow_html=True)
+    st.subheader("Requiere intervención")
+    st.markdown('<div class="red"><b>Demo Pharma · PGR GLUCOX</b><br>Revisar borrador y preparar envío al RFV.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="red"><b>Entrada de seguridad sin completar</b><br>Solicitar edad aproximada y evolución clínica al reportante.</div>', unsafe_allow_html=True)
 
     st.subheader("Esperando cliente / RFV / DINAVISA")
-    st.markdown('<div class="espera"><b>Laboratorio Guaraní Demo</b><br>Esperando documento solicitado al cliente.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="amber"><b>Demo Pharma · FV-DEMO-004</b><br>Documento preparado por SITIO. Pendiente de revisión del RFV.</div>', unsafe_allow_html=True)
 
-    with st.expander("🟢 25 clientes sin acción"):
-        st.write("El sistema no requiere tiempo operativo de SITIO en este momento.")
-
-    st.subheader("Próximos vencimientos y obligaciones")
-    st.dataframe(obligaciones, use_container_width=True, hide_index=True)
-
-elif pagina == "Clientes":
-    st.header("Clientes")
-    st.dataframe(clientes, use_container_width=True, hide_index=True)
-
-elif pagina == "BPFV":
-    st.header("Gestión de BPFV")
-    st.write("Implementaciones, renovaciones, evidencias, acciones correctivas y seguimiento.")
+    st.subheader("Próximas obligaciones")
     st.dataframe(
         [
-            {"cliente":"Demo Pharma Paraguay S.A.","estado":"Implementación 82%","constancia":"Pendiente","próximo paso":"Presentación DINAVISA"},
-            {"cliente":"Laboratorio Guaraní Demo","estado":"Vigente","constancia":"Disponible","próximo paso":"Revisión periódica"},
-            {"cliente":"Importadora Salud Demo","estado":"Vigente","constancia":"Disponible","próximo paso":"Sin acción"},
+            {"Cliente":"Demo Pharma","Obligación":"Revisión BPFV","Fecha":"14/11/2026","Responsable":"SITIO"},
+            {"Cliente":"Demo Pharma","Obligación":"PGR GLUCOX","Fecha":"30/11/2026","Responsable":"SITIO + RFV"},
+            {"Cliente":"Laboratorio Guaraní","Obligación":"Revisión documental","Fecha":"05/12/2026","Responsable":"Cliente"},
         ],
         use_container_width=True,
         hide_index=True,
     )
 
-elif pagina == "Soporte RFV":
-    st.header("Soporte al Responsable de Farmacovigilancia")
-    st.write("Trabajo preparado por SITIO que requiere revisión, aprobación o firma del RFV.")
-    st.dataframe(
-        [
-            {"cliente":"Demo Pharma Paraguay S.A.","asunto":"PGR GLUCOX","acción RFV":"Revisar y aprobar","estado":"Pendiente"},
-            {"cliente":"Demo Pharma Paraguay S.A.","asunto":"FV-DEMO-004","acción RFV":"Confirmar evaluación","estado":"Pendiente"},
-            {"cliente":"Laboratorio Guaraní Demo","asunto":"Revisión mensual","acción RFV":"Ninguna","estado":"Completado"},
-        ],
-        use_container_width=True,
-        hide_index=True,
+elif pagina == "Entradas de seguridad":
+    st.header("Entradas de seguridad")
+    st.write("Todo lo que llegue por enlaces, QR, correo, WhatsApp u otros canales se concentra aquí para evaluación inicial.")
+
+    st.markdown(
+        """
+        <div class="card">
+        <b>NUEVA · Demo Pharma · MED-X 100 mg</b><br>
+        <span class="muted">Origen: Visitador médico · Canal web</span><br><br>
+        “El Dr. Pérez comentó que un paciente tuvo mareos y vómitos dos días después de iniciar MED-X.
+        No tengo más información todavía.”
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
+
+    a, b = st.columns(2)
+    with a:
+        st.subheader("Extracción inicial")
+        st.write("**Producto:** MED-X 100 mg")
+        st.write("**Evento mencionado:** mareos, vómitos")
+        st.write("**Inicio:** aproximadamente 2 días tras inicio")
+        st.write("**Reportante:** visitador médico")
+    with b:
+        st.subheader("Información que falta")
+        st.write("• Identificador mínimo del paciente")
+        st.write("• Edad o grupo etario")
+        st.write("• Evolución / desenlace")
+        st.write("• Datos de contacto del profesional, si disponibles")
+
+    if st.button("Preparar solicitud de seguimiento", type="primary"):
+        st.success("Demo: SITIO prepararía un mensaje corto al reportante solicitando únicamente los datos faltantes.")
+
+    if st.button("Convertir en caso FV-DEMO-005"):
+        st.session_state.entrada_convertida = True
+        st.success("Entrada convertida en caso de demostración.")
 
 elif pagina == "Casos":
     st.header("Casos de seguridad")
-    st.warning("Demo pública. No introduzca datos reales de pacientes.")
+    st.warning("Demo con datos ficticios. No introducir datos reales de pacientes.")
+    casos = [
+        {"Caso":"FV-DEMO-004","Cliente":"Demo Pharma","Producto":"MED-X 100 mg","Estado":"Revisión RFV","Acción":"Esperar RFV"},
+        {"Caso":"FV-DEMO-003","Cliente":"Demo Pharma","Producto":"CARDIOMAX 10 mg","Estado":"Cerrado","Acción":"Ninguna"},
+    ]
+    if st.session_state.entrada_convertida:
+        casos.insert(0, {"Caso":"FV-DEMO-005","Cliente":"Demo Pharma","Producto":"MED-X 100 mg","Estado":"Seguimiento","Acción":"Solicitar datos"})
     st.dataframe(casos, use_container_width=True, hide_index=True)
 
-elif pagina == "Proyectos":
-    st.header("Proyectos de farmacovigilancia")
+    st.subheader("Flujo operativo")
+    st.write("Entrada → Validación → Seguimiento → Procesamiento → Revisión RFV → Paso regulatorio → Evidencia → Cierre")
+
+elif pagina == "BPFV y cumplimiento":
+    st.header("BPFV y cumplimiento")
     st.dataframe(
         [
-            {"cliente":"Demo Pharma Paraguay S.A.","proyecto":"Implementación BPFV","progreso":"82%","estado":"SITIO trabajando"},
-            {"cliente":"Demo Pharma Paraguay S.A.","proyecto":"PGR GLUCOX","progreso":"54%","estado":"Preparación"},
-            {"cliente":"Importadora Salud Demo","proyecto":"Revisión regulatoria","progreso":"100%","estado":"Completado"},
+            {"Cliente":"Demo Pharma","BPFV":"82%","Estado":"Implementación","Próximo paso":"Completar expediente","Acción SITIO":"Sí"},
+            {"Cliente":"Laboratorio Guaraní Demo","BPFV":"Vigente","Estado":"Mantenimiento","Próximo paso":"Revisión periódica","Acción SITIO":"No"},
+            {"Cliente":"Importadora Salud Demo","BPFV":"Vigente","Estado":"Mantenimiento","Próximo paso":"Sin acción","Acción SITIO":"No"},
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    st.subheader("Demo Pharma · componentes del sistema")
+    st.dataframe(
+        [
+            {"Componente":"Responsables y organización","Estado":"🟢 Completo"},
+            {"Componente":"Procedimientos","Estado":"🟢 Completo"},
+            {"Componente":"Gestión de casos","Estado":"🟢 Operativo"},
+            {"Componente":"Vigilancia y literatura","Estado":"🟢 Operativo"},
+            {"Componente":"Evidencias / archivo","Estado":"🟠 En consolidación"},
+            {"Componente":"Preparación expediente","Estado":"🟠 En curso"},
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+elif pagina == "Soporte al RFV":
+    st.header("Soporte al RFV")
+    st.write("SITIO prepara y filtra el trabajo; el RFV recibe únicamente lo que requiere revisión, aprobación o firma.")
+    st.dataframe(
+        [
+            {"Cliente":"Demo Pharma","Asunto":"PGR GLUCOX","Acción RFV":"Revisar y aprobar","SITIO":"Documento preparado","Estado":"Pendiente"},
+            {"Cliente":"Demo Pharma","Asunto":"FV-DEMO-004","Acción RFV":"Confirmar evaluación","SITIO":"Caso preparado","Estado":"Pendiente"},
+            {"Cliente":"Laboratorio Guaraní","Asunto":"Revisión mensual","Acción RFV":"Ninguna","SITIO":"Completado","Estado":"Cerrado"},
+        ],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+elif pagina == "Informes y proyectos":
+    st.header("Informes y proyectos")
+    st.dataframe(
+        [
+            {"Cliente":"Demo Pharma","Proyecto":"Implementación BPFV","Tipo":"BPFV","Progreso":"82%","Estado":"SITIO trabajando"},
+            {"Cliente":"Demo Pharma","Proyecto":"PGR GLUCOX 5 mg","Tipo":"PGR","Progreso":"54%","Estado":"Preparación"},
+            {"Cliente":"Importadora Salud","Proyecto":"Revisión regulatoria","Tipo":"Regulatorio","Progreso":"100%","Estado":"Completado"},
         ],
         use_container_width=True,
         hide_index=True,
@@ -136,19 +195,21 @@ elif pagina == "Proyectos":
 
 elif pagina == "Vigilancia regulatoria":
     st.header("Vigilancia regulatoria")
-    st.write("Alertas y cambios normativos que deben cruzarse con el portafolio de los clientes.")
+    st.write("SITIO revisa las novedades una vez y las cruza contra los productos de todos los clientes.")
     st.dataframe(
         [
-            {"fuente":"DINAVISA","tema":"Nota de seguridad · Demo","afecta":"2 clientes","estado":"Revisar"},
-            {"fuente":"DINAVISA","tema":"Actualización normativa · Demo","afecta":"5 clientes","estado":"Evaluado"},
+            {"Fuente":"DINAVISA","Tema":"Nota de seguridad · ejemplo","Productos afectados":"2","Clientes afectados":"2","Acción":"Evaluar"},
+            {"Fuente":"DINAVISA","Tema":"Cambio normativo · ejemplo","Productos afectados":"—","Clientes afectados":"5","Acción":"Planificar"},
+            {"Fuente":"Literatura","Tema":"Nueva publicación de seguridad · ejemplo","Productos afectados":"1","Clientes afectados":"1","Acción":"Revisado"},
         ],
         use_container_width=True,
         hide_index=True,
     )
 
-elif pagina == "Solicitudes":
-    st.header("Solicitudes recibidas")
-    st.dataframe(solicitudes, use_container_width=True, hide_index=True)
+elif pagina == "Clientes":
+    st.header("Clientes")
+    st.dataframe(clientes, use_container_width=True, hide_index=True)
+    st.caption("La operación se organiza por excepciones: SITIO dedica tiempo a los clientes que realmente requieren una acción.")
 
 st.divider()
-st.caption("SITIO BioMedical Solutions · Centro de Operaciones · Demo con datos ficticios")
+st.caption("SITIO BioMedical Solutions · SITIO-SurveillanceHelper · Demo con datos ficticios")
