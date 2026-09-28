@@ -1,21 +1,30 @@
-# SITIO Farmacovigilancia · Operaciones
+# SITIO-SurveillanceHelper · Centro de Operaciones
 
-Centro interno de operaciones de SITIO BioMedical Solutions.
+Demo interna del modelo operativo de **SITIO-SurveillanceHelper**.
 
-## Ejecutar
-```bash
-pip install -r requirements.txt
-streamlit run app.py
-```
+## Qué demuestra
+- Gestión por excepción.
+- Entradas de seguridad provenientes de enlaces/QR/canales.
+- Evaluación inicial y seguimiento.
+- Gestión de casos.
+- BPFV y cumplimiento.
+- Soporte al RFV.
+- PGR / IPS / PSUR y proyectos.
+- Vigilancia regulatoria.
+- Vista consolidada de clientes.
 
-## Contraseña de demo
-En Streamlit Cloud añada en **Settings > Secrets**:
+## Secrets de la demo
+En Streamlit Cloud > Settings > Secrets:
 
 ```toml
 APP_PASSWORD = "una-contraseña-larga"
 ```
 
-La contraseña no debe guardarse en GitHub.
+## Ejecutar localmente
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
 
 ## Seguridad
-Este repositorio es público y contiene únicamente código y datos ficticios. El bloqueo por contraseña es suficiente para una demo, no para datos reales de farmacovigilancia. Antes de producción se requiere autenticación robusta, autorización por roles, backend seguro, auditoría y almacenamiento privado.
+Esta demo usa únicamente información ficticia. El bloqueo por contraseña no sustituye autenticación, roles, auditoría, cifrado y aislamiento de datos necesarios antes de trabajar con información real de farmacovigilancia.
